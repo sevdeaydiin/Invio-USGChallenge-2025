@@ -8,6 +8,14 @@
 import Foundation
 import Combine
 
+// For centralized data management
+class CityLocationStore: ObservableObject {
+    @Published var cities: [City] = []
+    static let shared = CityLocationStore()
+    
+    private init() {}
+}
+
 final class SplashViewModel: ObservableObject {
     
     // MARK: - Published Properties
@@ -18,6 +26,7 @@ final class SplashViewModel: ObservableObject {
     private let networkManager: NetworkService
     private let cacheManager: CacheService
     private let imageDownloadManager: ImageDownloadService
+    private let store = CityLocationStore.shared
     
     // MARK: - Private Properties
     private var cancellables = Set<AnyCancellable>()
@@ -69,16 +78,14 @@ extension SplashViewModel {
                 let cityResponse: CityResponse = try await networkManager.fetch(
                     with: CityLocationEndpoint.getCityLocations(page: 1))
                 print("Data çekildi")
+                store.cities = cityResponse.data
                 
                 await MainActor.run {
-                    print("🏁 MainActor içinde")
                     self.cityLocations = cityResponse.data
                     self.viewState = .showData
-                    print("🎯 ViewState güncellendi: \(self.viewState)")
                 }
   
             } catch {
-                print("🧨 Hata yakalandı: \(error)")
                 if let networkError = error as? NetworkError {
                     await MainActor.run {
                         self.viewState = .error(networkError.errorDescription)
