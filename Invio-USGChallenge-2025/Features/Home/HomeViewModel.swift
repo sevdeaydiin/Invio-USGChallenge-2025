@@ -8,16 +8,21 @@
 import Foundation
 
 final class HomeViewModel: ObservableObject {
+    
+    // MARK: - Published Properties
     @Published private(set) var cities: [City] = []
     @Published private(set) var favoriteLocations: Set<Int> = [] // Location ID
     
+    // MARK: - Dependencies
     private let store = CityLocationStore.shared
     
+    // MARK: - Initialization
     init() {
         self.cities = store.cities
         loadFavorites()
     }
     
+    // MARK: - Favorite Methods
     func toggleFavorite(for location: Location) {
         if favoriteLocations.contains(location.id) {
             favoriteLocations.remove(location.id)
@@ -40,6 +45,7 @@ final class HomeViewModel: ObservableObject {
     }
 }
 
+// MARK: - Helper Methods
 extension HomeViewModel {
     func hasLocations(for city: City) -> Bool {
         !city.locations.isEmpty
