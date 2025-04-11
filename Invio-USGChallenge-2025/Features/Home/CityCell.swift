@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CityCell: View {
     @State private var isExpanded = false
-    @State private var isNavigateToDetail = false
+    @State private var isNavigateToMap = false
     let cityName: String
     let hasLocations: Bool
     let locations: [Location]
@@ -32,17 +32,9 @@ struct CityCell: View {
             Spacer()
             
             Button {
-                isNavigateToDetail = true
+                // Navigate to Map View
             } label: {
                 Image(systemName: "chevron.right")
-            }
-            
-            // MARK: Navigate to Detail View
-            NavigationLink(
-                destination: DetailView()
-                    .navigationBarBackButtonHidden(true),
-                isActive: $isNavigateToDetail) {
-                EmptyView()
             }
         }
         .padding(.vertical, 5)
@@ -54,7 +46,7 @@ struct CityCell: View {
                 .stroke(.black)
         )
         .padding(.horizontal)
-        .padding(.vertical, 1)
+        .padding(.bottom, 2)
         
         // MARK: - If there is a location in the city
         if isExpanded {
@@ -62,8 +54,11 @@ struct CityCell: View {
                 LocationRow(
                     location: location,
                     isFavorite: isFavorite(location),
-                    onFavoriteToggle: { onFavoriteToggle(location) })
+                    style: .compact,
+                    onFavoriteToggle: { onFavoriteToggle(location) }
+                )
             }
+            .padding(.bottom, 1)
         }
     }
 }
