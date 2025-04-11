@@ -15,33 +15,25 @@ final class HomeViewModel: ObservableObject {
     
     // MARK: - Dependencies
     private let store = CityLocationStore.shared
+    private let favoriteManager = FavoriteManager.shared
     
     // MARK: - Initialization
     init() {
         self.cities = store.cities
-        loadFavorites()
     }
     
     // MARK: - Favorite Methods
     func toggleFavorite(for location: Location) {
-        if favoriteLocations.contains(location.id) {
-            favoriteLocations.remove(location.id)
+        if favoriteManager.isFavorite(location.id) {
+            favoriteManager.removeFromFavorite(location.id)
         } else {
-            favoriteLocations.insert(location.id)
+            favoriteManager.addToFavorite(location.id)
         }
-        saveFavorites()
+        objectWillChange.send()
     }
     
     func isLocationFavorite(_ location: Location) -> Bool {
-        favoriteLocations.contains(location.id)
-    }
-    
-    private func loadFavorites() {
-        favoriteLocations = Set(UserDefaults.favoriteKeys)
-    }
-    
-    private func saveFavorites() {
-        UserDefaults.favoriteKeys = Array(favoriteLocations)
+        favoriteManager.isFavorite(location.id)
     }
 }
 
