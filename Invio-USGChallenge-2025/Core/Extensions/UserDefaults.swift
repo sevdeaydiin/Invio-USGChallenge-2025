@@ -10,8 +10,12 @@ import Foundation
 extension UserDefaults {
     public enum Keys {
         static let favoriteKeys = "favoriteLocations"
+        static let cityDataKey = "cachedCityData"
     }
     
     @UserDefault(key: Keys.favoriteKeys, defaultValue: [])
     static var favoriteKeys: [Int]
+    
+    @UserDefault(key: Keys.cityDataKey, defaultValue: [])
+    static var cachedCityData: [City]
 }
