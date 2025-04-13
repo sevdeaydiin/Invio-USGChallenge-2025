@@ -18,6 +18,20 @@ final class FavoriteViewModel: ObservableObject {
     // MARK: - Initialization
     init() {
         loadFavoriteLocations()
+        setupNotificationObserver()
+    }
+    
+    private func setupNotificationObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleFavoriteStatusChanged),
+            name: NSNotification.Name("FavoriteStatusChanged"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleFavoriteStatusChanged() {
+        loadFavoriteLocations()
     }
     
     private func loadFavoriteLocations() {
@@ -37,5 +51,9 @@ final class FavoriteViewModel: ObservableObject {
     
     var hasFavorite: Bool {
         !favoriteLocations.isEmpty
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }
