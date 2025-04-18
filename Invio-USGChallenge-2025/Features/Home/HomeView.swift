@@ -12,36 +12,47 @@ struct HomeView: View {
     @State private var isNavigateToFavorite = false
     
     var body: some View {
-        ScrollView {
-            LazyVStack {
-                ForEach(viewModel.cities, id: \.city) { city in
-                    CityCell(
-                        cityName: city.city,
-                        hasLocations: viewModel.hasLocations(for: city),
-                        locations: city.locations,
-                        isFavorite: { location in viewModel.isLocationFavorite(location) },
-                        onFavoriteToggle: { location in viewModel.toggleFavorite(for: location) }
-                    )
+        NavigationStack {
+            ScrollView {
+                LazyVStack {
+                    ForEach(viewModel.cities, id: \.city) { city in
+                        CityCell(
+                            cityName: city.city,
+                            hasLocations: viewModel.hasLocations(for: city),
+                            locations: city.locations,
+                            isFavorite: { location in viewModel.isLocationFavorite(location) },
+                            onFavoriteToggle: { location in viewModel.toggleFavorite(for: location) }
+                        )
+                    }
                 }
             }
-        }
-        .navigationTitle("Önemli Konumlar")
-        .navigationBarItems(
-            trailing: Button {
-                isNavigateToFavorite = true
-            } label: {
-                Image(systemName: "heart")
-                    .foregroundColor(.red)
+            .toolbar {
+                ToolbarItemView(isNavigateToFavorite: $isNavigateToFavorite)
             }
-        )
+            .navigationDestination(isPresented: $isNavigateToFavorite) {
+                FavoriteView()
+                    .navigationBarBackButtonHidden()
+            }
+        }
+    }
+}
+
+private struct ToolbarItemView: ToolbarContent {
+    @Binding var isNavigateToFavorite: Bool
+    
+    var body: some ToolbarContent {
+        ToolbarItem(placement: .principal) {
+            Text("Önemli Konumlar")
+                .font(.headline)
+        }
         
-        // MARK: - Navigate to Favorite View
-        NavigationLink(
-            destination: FavoriteView()
-                .navigationBarBackButtonHidden(true),
-            isActive: $isNavigateToFavorite) {
-                EmptyView()
-            } 
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Image(systemName: "heart")
+                .foregroundColor(.red)
+                .onTapGesture {
+                    isNavigateToFavorite = true
+                }
+        }
     }
 }
 
