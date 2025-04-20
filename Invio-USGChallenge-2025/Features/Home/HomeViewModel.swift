@@ -12,14 +12,46 @@ final class HomeViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published private(set) var cities: [City] = []
     @Published private(set) var favoriteLocations: Set<Int> = [] // Location ID
+    @Published private(set) var isLoading = false
+    @Published private(set) var currentPage = 1
+    @Published private(set) var hasMorePages = true
     
     // MARK: - Dependencies
     private let store = CityLocationStore.shared
     private let favoriteManager = FavoriteManager.shared
+    private let networkManager: NetworkService
     
     // MARK: - Initialization
-    init() {
+    init(networkManager: NetworkService = NetworkManager()) {
+        self.networkManager = networkManager
         self.cities = store.cities
+    }
+    
+    // MARK: - Data Fetching
+    func loadMoreContentIfNeeded() async {
+        guard !isLoading && hasMorePages else { return }
+        
+        await MainActor.run {
+            isLoading = true
+        }
+        
+        do {
+            let cityResponse: CityResponse = try await networkManager.fetch(
+                with: CityLocationEndpoint.getCityLocations(page: currentPage + 1)
+            )
+            
+            await MainActor.run {
+                cities.append(contentsOf: cityResponse.data)
+                currentPage = cityResponse.currentPage
+                hasMorePages = currentPage < cityResponse.totalPage
+                isLoading = false
+            }
+        } catch {
+            await MainActor.run {
+                isLoading = false
+            }
+            print("Error loading more content: \(error)")
+        }
     }
     
     // MARK: - Favorite Methods

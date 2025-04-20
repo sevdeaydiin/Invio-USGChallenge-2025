@@ -24,6 +24,22 @@ struct HomeView: View {
                             onFavoriteToggle: { location in viewModel.toggleFavorite(for: location) }
                         )
                     }
+                    
+                    // Loading indicator and next page trigger
+                    if !viewModel.cities.isEmpty {
+                        HStack {
+                            if viewModel.isLoading {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle())
+                            }
+                        }
+                        .frame(height: 50)
+                        .onAppear {
+                            Task {
+                                await viewModel.loadMoreContentIfNeeded()
+                            }
+                        }
+                    }
                 }
             }
             .toolbar {
