@@ -70,9 +70,7 @@ struct CityMapView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 15) {
                         ForEach(viewModel.locations) { location in
-                            HorizontalLocationCard(action: {
-                                
-                            }, location: location)
+                            HorizontalLocationCard(location: location)
                         }
                     }.padding()
                 }
