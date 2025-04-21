@@ -40,6 +40,7 @@ class LocationMapViewModel: NSObject, ObservableObject, CLLocationManagerDelegat
         case .notDetermined:
             manager.requestWhenInUseAuthorization()
         case .authorizedAlways, .authorizedWhenInUse:
+            shouldCenterOnUser = true
             fetchUserLocation()
         case .denied, .restricted:
             shouldShowSettingsAlert = true
@@ -55,10 +56,10 @@ class LocationMapViewModel: NSObject, ObservableObject, CLLocationManagerDelegat
     
     // Called when the user's location permission status changes
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        let status = manager.authorizationStatus
         DispatchQueue.main.async {
             self.authorizationStatus = status
         }
+        
         if status == .authorizedWhenInUse || status == .authorizedAlways {
             fetchUserLocation()
         }
@@ -66,13 +67,12 @@ class LocationMapViewModel: NSObject, ObservableObject, CLLocationManagerDelegat
     
     // Called when new location data is available
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let coordinate = locations.last?.coordinate {
-            DispatchQueue.main.async {
-                self.userLocation = coordinate
-                self.shouldCenterOnUser = true
-            }
-            manager.stopUpdatingLocation()
+        guard let coordinate = locations.last?.coordinate else { return }
+        
+        DispatchQueue.main.async {
+            self.userLocation = coordinate
         }
+        manager.stopUpdatingLocation()
     }
     
     func openDirections(for location: Location) {

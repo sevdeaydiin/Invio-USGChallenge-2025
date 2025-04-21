@@ -31,18 +31,18 @@ struct LocationMapView: View {
             Map(coordinateRegion: $region, annotationItems: annotations) { annotation in
                 MapAnnotation(coordinate: annotation.coordinates) {
                     if annotation.isUserLocation {
-                        // Kullanıcı konumu için icon
-                        Image(systemName: "scope")
+                        // Current location icon
+                        Image(systemName: "circle.fill")
                             .font(.subheadline)
                             .foregroundColor(.blue)
                             .shadow(radius: 4)
                             .padding(3)
                             .background(Circle().fill(Color.white).shadow(radius: 4))
                     } else {
-                        // Seçilen konum için icon (mevcut star.fill)
+                        // Selected location icon
                         Image(systemName: "mappin.circle.fill")
-                            .font(.headline)
-                            .foregroundColor(.purple)
+                            .font(.title)
+                            .foregroundColor(.red)
                     }
                 }
             }
@@ -67,25 +67,34 @@ struct LocationMapView: View {
             }
         }
         .onReceive(viewModel.$userLocation) { userCoordinate in
-            if viewModel.shouldCenterOnUser, let userLocation = viewModel.userLocation {
-                region = MKCoordinateRegion(
-                    center: userCoordinate ?? CLLocationCoordinate2D(latitude: location.coordinates.lat, longitude: location.coordinates.lng),
-                    span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
-                annotations = [
-                    CustomAnnotation(coordinates: CLLocationCoordinate2D(latitude: location.coordinates.lat, longitude: location.coordinates.lng), isUserLocation: false),
-                    CustomAnnotation(coordinates: userCoordinate ?? CLLocationCoordinate2D(latitude: location.coordinates.lat, longitude: location.coordinates.lng), isUserLocation: true)
-                ]
-                
-                DispatchQueue.main.async {
-                    viewModel.shouldCenterOnUser = false
-                }
+            guard let userCoordinate = userCoordinate, viewModel.shouldCenterOnUser else { return }
+            
+            region = MKCoordinateRegion(
+                center: userCoordinate,
+                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+            )
+            
+            annotations = [
+                CustomAnnotation(coordinates: CLLocationCoordinate2D(latitude: location.coordinates.lat, longitude: location.coordinates.lng), isUserLocation: false),
+                CustomAnnotation(coordinates: userCoordinate, isUserLocation: true)
+            ]
+            
+            DispatchQueue.main.async {
+                viewModel.shouldCenterOnUser = false
             }
         }
         .onAppear {
-            annotations = [CustomAnnotation(coordinates: CLLocationCoordinate2D(
-                latitude: location.coordinates.lat,
-                longitude: location.coordinates.lng
-            ), isUserLocation: false)]
+            // Show selected location on first load
+            region = MKCoordinateRegion(
+                center: CLLocationCoordinate2D(latitude: location.coordinates.lat, longitude: location.coordinates.lng),
+                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+            )
+            
+            annotations = [
+                CustomAnnotation(coordinates: CLLocationCoordinate2D(latitude: location.coordinates.lat, longitude: location.coordinates.lng), isUserLocation: false)
+            ]
+            
+            // Request user location permission and get location
             viewModel.requestLocationAccess()
         }
         .alert(isPresented: $viewModel.shouldShowSettingsAlert) {
@@ -101,35 +110,10 @@ struct LocationMapView: View {
     }
 }
 
-struct CustomAnnotation: Identifiable {
+private struct CustomAnnotation: Identifiable {
     let id = UUID()
     let coordinates: CLLocationCoordinate2D
     let isUserLocation: Bool
-}
-
-private struct LocationIcon: View {
-    let action: () -> Void
-    var body: some View {
-        Button {
-            action()
-        } label: {
-            Circle()
-                .fill(Color.white)
-                .frame(width: 50, height: 50)
-                .overlay(
-                    Image("location")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 40, height: 40)
-                        .padding()
-                )
-                .background(
-                    Circle()
-                        .stroke(.black)
-                )
-                .padding(.bottom, 20)
-        }
-    }
 }
 
 private struct ToolbarItemView: ToolbarContent {
