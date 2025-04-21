@@ -27,7 +27,7 @@ struct LocationMapView: View {
     }
     
     var body: some View {
-        ZStack {
+        ZStack(alignment: .bottom) {
             Map(coordinateRegion: $region, annotationItems: annotations) { annotation in
                 MapAnnotation(coordinate: annotation.coordinates) {
                     if annotation.isUserLocation {
@@ -40,36 +40,28 @@ struct LocationMapView: View {
                             .background(Circle().fill(Color.white).shadow(radius: 4))
                     } else {
                         // Seçilen konum için icon (mevcut star.fill)
-                        Image(systemName: "mappin.and.ellipse")
+                        Image(systemName: "mappin.circle.fill")
                             .font(.headline)
                             .foregroundColor(.purple)
-                            .shadow(radius: 4)
-                            .padding(3)
-                            .background(Circle().fill(Color.white).shadow(radius: 4))
                     }
                 }
             }
             .ignoresSafeArea(.all)
             
-            VStack {
-                Spacer()
-                VStack {
-                    Spacer()
-                    HStack {
-                        Spacer()
-                        
-                        // Location icon (left-bottom)
-                        LocationIcon(action: viewModel.centerOnUserLocation)
-                    }
-                    
-                    // Directions Button
-                    CustomButton(buttonText: "Yol Tarifi Al") {
-                        
-                    }
+            VStack(alignment: .trailing) {
+                // Location icon (left-bottom)
+                LocationButton {
+                    viewModel.centerOnUserLocation()
+                }
+                .padding(.bottom)
+                
+                // Directions Button
+                CustomButton(buttonText: "Yol Tarifi Al", height: 50) {
+                    viewModel.openDirections(for: location)
                 }
                 .padding(.horizontal, 30)
-                .padding(.bottom, 20)
             }
+            .padding(.bottom)
             .toolbar {
                 ToolbarItemView(location: location.name)
             }
@@ -91,9 +83,9 @@ struct LocationMapView: View {
         }
         .onAppear {
             annotations = [CustomAnnotation(coordinates: CLLocationCoordinate2D(
-                    latitude: location.coordinates.lat,
-                    longitude: location.coordinates.lng
-                ), isUserLocation: false)]
+                latitude: location.coordinates.lat,
+                longitude: location.coordinates.lng
+            ), isUserLocation: false)]
             viewModel.requestLocationAccess()
         }
         .alert(isPresented: $viewModel.shouldShowSettingsAlert) {
