@@ -11,8 +11,8 @@ import SwiftUI
 struct Invio_USGChallenge_2025App: App {
     var body: some Scene {
         WindowGroup {
-            ContentView(
-                viewModel: CityLocationViewModel(
+            SplashView(
+                viewModel: SplashViewModel(
                     networkManager: NetworkManager(),
                     cacheManager: CacheManager(),
                     imageDownloadManager: ImageDownloadManager())
