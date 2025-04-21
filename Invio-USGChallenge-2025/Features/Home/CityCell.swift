@@ -33,7 +33,9 @@ struct CityCell: View {
                 Spacer()
                 
                 Button {
-                    isNavigateToMap = true
+                    Task { @MainActor in
+                        isNavigateToMap = true
+                    }
                 } label: {
                     Image(systemName: "chevron.right")
                 }
