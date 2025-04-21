@@ -9,23 +9,27 @@ import SwiftUI
 
 struct CustomButton: View {
     let buttonText: String
+    let height: CGFloat?
     let action: () -> Void
+    
     var body: some View {
         Button {
             action()
         } label: {
             Text(buttonText)
+                .font(.callout)
                 .padding()
-                .frame(maxWidth: .infinity, maxHeight: 50)
+                .frame(maxWidth: .infinity, maxHeight: height ?? 50)
                 .foregroundStyle(.black)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(.cyan.opacity(0.3))
+                        .fill(.lavender)
                 )
                 .overlay {
                     RoundedRectangle(cornerRadius: 12)
-                        .stroke(.cyan)
+                        .stroke(.violetBlue)
                 }
         }
+        .padding(.horizontal)
     }
 }
