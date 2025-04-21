@@ -28,18 +28,20 @@ struct CityMapView: View {
                 MapAnnotation(coordinate: CLLocationCoordinate2D(latitude: location.coordinates.lat, longitude: location.coordinates.lng)) {
                     if location.id == -1 {
                         if viewModel.userLocation != nil {
-                            // User location
-                            Image(systemName: "scope")
-                                .font(.title2)
-                                .foregroundStyle(.blue)
+                            // User location icon
+                            Image(systemName: "circle.fill")
+                                .font(.subheadline)
+                                .foregroundStyle(.violetBlue)
+                                .shadow(radius: 4)
                                 .padding(3)
                                 .background(Circle().fill(Color.white).shadow(radius: 5))
+                                
                         }
                     } else {
-                        // City locations
+                        // City locations icon
                         Image(systemName: "mappin.circle.fill")
                             .foregroundStyle(.red)
-                            .font(.title)
+                            .font(.title2)
                     }
                 }
             }
@@ -106,6 +108,7 @@ private struct ToolbarItemView: ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
             Image(systemName: "chevron.left")
                 .foregroundColor(.black)
+                .fontWeight(.bold)
                 .onTapGesture {
                     dismiss()
                 }
