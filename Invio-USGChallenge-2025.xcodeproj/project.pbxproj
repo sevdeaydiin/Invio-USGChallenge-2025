@@ -8,15 +8,29 @@
 
 /* Begin PBXBuildFile section */
 		B01638792DA7F0D5001BA7B5 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = B01638782DA7F0D5001BA7B5 /* Kingfisher */; };
+		B02DEA622DB529DF00C5964A /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = B02DEA612DB529DF00C5964A /* Lottie */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		B0DC3B1D2DA1B6D600B0A2C1 /* Invio-USGChallenge-2025.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Invio-USGChallenge-2025.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B005AC4A2DB67394004701FE /* Exceptions for "Invio-USGChallenge-2025" folder in "Invio-USGChallenge-2025" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B0DC3B1C2DA1B6D500B0A2C1 /* Invio-USGChallenge-2025 */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B0DC3B1F2DA1B6D600B0A2C1 /* Invio-USGChallenge-2025 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B005AC4A2DB67394004701FE /* Exceptions for "Invio-USGChallenge-2025" folder in "Invio-USGChallenge-2025" target */,
+			);
 			path = "Invio-USGChallenge-2025";
 			sourceTree = "<group>";
 		};
@@ -28,6 +42,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B01638792DA7F0D5001BA7B5 /* Kingfisher in Frameworks */,
+				B02DEA622DB529DF00C5964A /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -71,6 +86,7 @@
 			name = "Invio-USGChallenge-2025";
 			packageProductDependencies = (
 				B01638782DA7F0D5001BA7B5 /* Kingfisher */,
+				B02DEA612DB529DF00C5964A /* Lottie */,
 			);
 			productName = "Invio-USGChallenge-2025";
 			productReference = B0DC3B1D2DA1B6D600B0A2C1 /* Invio-USGChallenge-2025.app */;
@@ -102,6 +118,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				B01638772DA7F0D5001BA7B5 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				B02DEA602DB529DF00C5964A /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B0DC3B1E2DA1B6D600B0A2C1 /* Products */;
@@ -264,12 +281,15 @@
 				DEVELOPMENT_TEAM = H5P32Y7JUB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Invio-USGChallenge-2025/Info.plist";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Bu uygulama, konum servislerini kullanmak için izninize ihtiyaç duyuyor.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Harita üzerinde konumunuzu gösterebilmemiz için izninize ihtiyacımız var.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -297,12 +317,15 @@
 				DEVELOPMENT_TEAM = H5P32Y7JUB;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Invio-USGChallenge-2025/Info.plist";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Bu uygulama, konum servislerini kullanmak için izninize ihtiyaç duyuyor.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Harita üzerinde konumunuzu gösterebilmemiz için izninize ihtiyacımız var.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -351,6 +374,14 @@
 				minimumVersion = 8.3.1;
 			};
 		};
+		B02DEA602DB529DF00C5964A /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -358,6 +389,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B01638772DA7F0D5001BA7B5 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		B02DEA612DB529DF00C5964A /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B02DEA602DB529DF00C5964A /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
