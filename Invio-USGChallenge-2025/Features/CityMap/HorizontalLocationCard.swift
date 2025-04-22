@@ -39,6 +39,7 @@ struct HorizontalLocationCard: View {
                     Text(location.name)
                         .font(.subheadline)
                         .fontWeight(.semibold)
+                        .foregroundStyle(.primary)
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: 150)
                     
@@ -47,13 +48,16 @@ struct HorizontalLocationCard: View {
                     }
                 }
             }
+            
             .padding(.vertical)
             .padding(.horizontal)
             .frame(maxWidth: 300)
-            .background(RoundedRectangle(cornerRadius: 10).fill(Color.white).shadow(radius: 5))
+            .background(RoundedRectangle(cornerRadius: 10).fill(.background).shadow(radius: 5))
+            //.background(.background)
             .navigationDestination(isPresented: $isNavigateToDetail) {
                 DetailView(location: location)
             }
+            
         }
     }
 }

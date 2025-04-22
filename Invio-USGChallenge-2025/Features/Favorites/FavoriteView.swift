@@ -35,13 +35,18 @@ struct FavoriteView: View {
             }
         }
         .navigationTitle("Favorilerim")
-        .navigationBarItems(
-            leading:Button(
-                action: { dismiss() }) {
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
                     Image(systemName: "arrow.backward")
-                        .foregroundStyle(.black)
                 }
-        )
+                .foregroundStyle(.primary)
+            }
+        }
+        .scrollIndicators(.hidden)
     }
 }
 

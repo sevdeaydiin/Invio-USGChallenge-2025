@@ -43,7 +43,7 @@ struct DetailView: View {
                 
                 Spacer()
                 
-                CustomButton(buttonText: "Haritada Göster") {
+                CustomButton(buttonText: "Haritada Göster", height: 50) {
                     showMap = true
                 } 
             }

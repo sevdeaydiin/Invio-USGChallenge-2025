@@ -127,7 +127,7 @@ private struct ToolbarItemView: ToolbarContent {
             } label: {
                 Image(systemName: "chevron.left")
                     .fontWeight(.bold)
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
             }
         }
         
@@ -135,7 +135,7 @@ private struct ToolbarItemView: ToolbarContent {
             Text(location)
                 .font(.title3)
                 .fontWeight(.bold)
-                .foregroundColor(.black)
+                .foregroundColor(.primary)
         }
     }
 }

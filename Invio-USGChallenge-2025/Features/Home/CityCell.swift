@@ -41,12 +41,12 @@ struct CityCell: View {
                 }
             }
             .padding(.vertical, 5)
-            .foregroundColor(.black)
+            .foregroundColor(.primary)
             .font(.headline)
             .padding(.horizontal)
             .background(
                 RoundedRectangle(cornerRadius: 5)
-                    .stroke(.black)
+                    .stroke(.primary)
             )
             .padding(.horizontal)
             .padding(.bottom, 2)

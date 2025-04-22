@@ -42,9 +42,12 @@ struct HomeView: View {
                     }
                 }
             }
+            .background(.background)
             .toolbar {
                 ToolbarItemView(isNavigateToFavorite: $isNavigateToFavorite)
             }
+            .navigationTitle("Önemli Konumlar")
+            .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: $isNavigateToFavorite) {
                 FavoriteView()
                     .navigationBarBackButtonHidden()
@@ -57,11 +60,6 @@ private struct ToolbarItemView: ToolbarContent {
     @Binding var isNavigateToFavorite: Bool
     
     var body: some ToolbarContent {
-        ToolbarItem(placement: .principal) {
-            Text("Önemli Konumlar")
-                .font(.headline)
-        }
-        
         ToolbarItem(placement: .navigationBarTrailing) {
             Image(systemName: "heart")
                 .foregroundColor(.red)

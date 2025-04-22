@@ -107,7 +107,7 @@ private struct ToolbarItemView: ToolbarContent {
     var body: some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
             Image(systemName: "chevron.left")
-                .foregroundColor(.black)
+                .foregroundColor(.primary)
                 .fontWeight(.bold)
                 .onTapGesture {
                     dismiss()
@@ -118,7 +118,8 @@ private struct ToolbarItemView: ToolbarContent {
             Text(cityName)
                 .font(.title2)
                 .fontWeight(.bold)
-                .foregroundColor(.black)
+                .foregroundColor(.primary)
         }
     }
+    
 }
