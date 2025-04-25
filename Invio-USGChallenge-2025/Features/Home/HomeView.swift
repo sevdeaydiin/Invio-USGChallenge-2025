@@ -9,10 +9,11 @@ import SwiftUI
 
 struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
+    @State private var navigationPath = NavigationPath()
     @State private var isNavigateToFavorite = false
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             ScrollView {
                 LazyVStack {
                     ForEach(viewModel.cities, id: \.city) { city in
@@ -51,6 +52,16 @@ struct HomeView: View {
             .navigationDestination(isPresented: $isNavigateToFavorite) {
                 FavoriteView()
                     .navigationBarBackButtonHidden()
+            }
+            .navigationDestination(for: Location.self) { location in
+                DetailView(location: location)
+                    .navigationBarBackButtonHidden()
+            }
+            .navigationDestination(for: String.self) { cityName in
+                if let city = viewModel.cities.first(where: { $0.city == cityName }) {
+                    CityMapView(viewModel: CityMapViewModel(cityName: cityName, locations: city.locations))
+                        .navigationBarBackButtonHidden()
+                }
             }
         }
     }
