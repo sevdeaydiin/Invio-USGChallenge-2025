@@ -10,38 +10,106 @@ import CoreLocation
 import MapKit
 import SwiftUI
 import UIKit
+import Combine
 
-class LocationMapViewModel: NSObject, ObservableObject, CLLocationManagerDelegate {
+class LocationMapViewModel: NSObject, ObservableObject {
     
     // MARK: - Published Properties
     @Published var userLocation: CLLocationCoordinate2D?
     @Published var shouldCenterOnUser: Bool = false
-    @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
     @Published var shouldShowSettingsAlert: Bool = false
+    @Published var shouldShowLocationPermissionAlert: Bool = false
+    @Published var shouldCenterOnUserLocationAfterPermission: Bool = false
+    @Published var isFirstLocationRequest: Bool = true
     
-    private let manager = CLLocationManager()
+    private var locationManager: LocationManager
+    private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Initialization
     override init() {
+        self.locationManager = .shared
         super.init()
-        manager.delegate = self
-        manager.desiredAccuracy = kCLLocationAccuracyBest
+        bindLocationUpdates()
+    }
+    
+    private func bindLocationUpdates() {
+        locationManager.$userLocation
+            .sink { [weak self] location in
+                guard let self = self, let location = location else { return }
+                self.userLocation = location
+                if self.shouldCenterOnUserLocationAfterPermission {
+                    self.shouldCenterOnUser = true
+                }
+            }
+            .store(in: &cancellables)
+            
+        locationManager.$shouldShowSettingsAlert
+            .sink { [weak self] shouldShow in
+                self?.shouldShowSettingsAlert = shouldShow
+            }
+            .store(in: &cancellables)
+            
+        locationManager.$authorizationStatus
+            .sink { [weak self] status in
+                guard let self = self else { return }
+                
+                switch status {
+                case .authorizedWhenInUse, .authorizedAlways:
+                    self.locationManager.fetchUserLocation()
+                    if self.shouldCenterOnUserLocationAfterPermission {
+                        self.shouldCenterOnUser = true
+                    }
+                case .denied, .restricted:
+                    if !self.isFirstLocationRequest {
+                        self.shouldShowSettingsAlert = true
+                    }
+                default:
+                    break
+                }
+            }
+            .store(in: &cancellables)
     }
     
     // Ask the user for location access when the app is in use
     func requestLocationAccess() {
-        manager.requestWhenInUseAuthorization()
-    }
-    
-    func centerOnUserLocation() {
-        let status = manager.authorizationStatus
+        let status = locationManager.authorizationStatus
         
         switch status {
         case .notDetermined:
-            manager.requestWhenInUseAuthorization()
+            if isFirstLocationRequest {
+                shouldShowLocationPermissionAlert = true
+            } else {
+                locationManager.requestLocationAccess()
+            }
+        case .authorizedAlways, .authorizedWhenInUse:
+            locationManager.fetchUserLocation()
+            if shouldCenterOnUserLocationAfterPermission {
+                shouldCenterOnUser = true
+            }
+        case .denied, .restricted:
+            if !isFirstLocationRequest {
+                shouldShowSettingsAlert = true
+            }
+        @unknown default:
+            break
+        }
+    }
+    
+    func centerOnUserLocation() {
+        let status = locationManager.authorizationStatus
+        
+        switch status {
+        case .notDetermined:
+            if isFirstLocationRequest {
+                shouldCenterOnUserLocationAfterPermission = true
+                shouldShowLocationPermissionAlert = true
+                isFirstLocationRequest = false
+            } else {
+                locationManager.requestLocationAccess()
+            }
         case .authorizedAlways, .authorizedWhenInUse:
             shouldCenterOnUser = true
-            fetchUserLocation()
+            locationManager.fetchUserLocation()
         case .denied, .restricted:
             shouldShowSettingsAlert = true
         @unknown default:
@@ -51,28 +119,16 @@ class LocationMapViewModel: NSObject, ObservableObject, CLLocationManagerDelegat
     
     // Start fetching the user's location
     func fetchUserLocation() {
-        manager.startUpdatingLocation()
+        locationManager.fetchUserLocation()
     }
     
-    // Called when the user's location permission status changes
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        DispatchQueue.main.async {
-            self.authorizationStatus = status
+    func handleLocationPermissionResponse(isAccepted: Bool) {
+        if isAccepted {
+            locationManager.requestLocationAccess()
+        } else {
+            shouldCenterOnUserLocationAfterPermission = false
         }
-        
-        if status == .authorizedWhenInUse || status == .authorizedAlways {
-            fetchUserLocation()
-        }
-    }
-    
-    // Called when new location data is available
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let coordinate = locations.last?.coordinate else { return }
-        
-        DispatchQueue.main.async {
-            self.userLocation = coordinate
-        }
-        manager.stopUpdatingLocation()
+        isFirstLocationRequest = false
     }
     
     func openDirections(for location: Location) {
