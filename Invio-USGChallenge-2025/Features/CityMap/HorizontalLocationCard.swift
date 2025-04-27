@@ -56,12 +56,10 @@ struct HorizontalLocationCard: View {
                     }
                 }
             }
-            
             .padding(.vertical)
             .padding(.horizontal)
             .frame(maxWidth: 300)
             .background(RoundedRectangle(cornerRadius: 10).fill(.background).shadow(radius: 5))
-            //.background(.background)
             .navigationDestination(isPresented: $isNavigateToDetail) {
                 DetailView(location: location)
             }

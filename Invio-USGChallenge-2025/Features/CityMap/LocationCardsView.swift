@@ -6,13 +6,31 @@
 //
 
 import SwiftUI
+import MapKit
 
 struct LocationCardsView: View {
+    let viewModel: CityMapViewModel
+    @Binding var mapRegion: MKCoordinateRegion
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 15) {
+                ForEach(viewModel.locations) { location in
+                    HorizontalLocationCard(
+                        location: location,
+                        distance: viewModel.locationDistances[location.id] ?? "",
+                        isSelected: location.id == viewModel.selectedLocationId
+                    )
+                    .onTapGesture {
+                        viewModel.selectLocation(location.id)
+                        mapRegion.center = CLLocationCoordinate2D(
+                            latitude: location.coordinates.lat,
+                            longitude: location.coordinates.lng
+                        )
+                    }
+                }
+            }
+            .padding()
+        }
     }
-}
-
-#Preview {
-    LocationCardsView()
 }
