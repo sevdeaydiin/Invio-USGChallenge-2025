@@ -15,6 +15,7 @@ struct LocationMapView: View {
     @StateObject private var viewModel = LocationMapViewModel()
     @State private var region: MKCoordinateRegion
     @State private var annotations: [CustomAnnotation] = []
+    @Environment(\.dismiss) private var dismiss
     
     init(location: Location) {
         self.location = location
@@ -34,15 +35,16 @@ struct LocationMapView: View {
                         // Current location icon
                         Image(systemName: "circle.fill")
                             .font(.subheadline)
-                            .foregroundColor(.blue)
+                            .foregroundColor(.violetBlue)
                             .shadow(radius: 4)
                             .padding(3)
                             .background(Circle().fill(Color.white).shadow(radius: 4))
                     } else {
                         // Selected location icon
-                        Image(systemName: "mappin.circle.fill")
-                            .font(.title)
-                            .foregroundColor(.red)
+                        Image("location")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 35, height: 35)
                     }
                 }
             }
@@ -63,7 +65,21 @@ struct LocationMapView: View {
             }
             .padding(.bottom)
             .toolbar {
-                ToolbarItemView(location: location.name)
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .fontWeight(.bold)
+                    }
+                    .foregroundColor(.primary)
+                }
+                ToolbarItem(placement: .principal) {
+                    Text(location.name)
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                }
             }
         }
         .onReceive(viewModel.$userLocation) { userCoordinate in
@@ -107,6 +123,14 @@ struct LocationMapView: View {
             }),
                   secondaryButton: .cancel(Text("İptal")))
         }
+        .alert("Kendi konumunu haritada görmek ister misin?", isPresented: $viewModel.shouldShowLocationPermissionAlert) {
+            Button("Evet") {
+                viewModel.handleLocationPermissionResponse(isAccepted: true)
+            }
+            Button("Hayır", role: .cancel) {
+                viewModel.handleLocationPermissionResponse(isAccepted: false)
+            }
+        }
     }
 }
 
@@ -114,28 +138,4 @@ private struct CustomAnnotation: Identifiable {
     let id = UUID()
     let coordinates: CLLocationCoordinate2D
     let isUserLocation: Bool
-}
-
-private struct ToolbarItemView: ToolbarContent {
-    @Environment(\.dismiss) var dismiss
-    let location: String
-    
-    var body: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarLeading) {
-            Button {
-                dismiss()
-            } label: {
-                Image(systemName: "chevron.left")
-                    .fontWeight(.bold)
-                    .foregroundColor(.primary)
-            }
-        }
-        
-        ToolbarItem(placement: .principal) {
-            Text(location)
-                .font(.title3)
-                .fontWeight(.bold)
-                .foregroundColor(.primary)
-        }
-    }
 }

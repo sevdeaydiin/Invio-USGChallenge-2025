@@ -9,15 +9,16 @@ import SwiftUI
 
 struct CityCell: View {
     @State private var isExpanded = false
-    @State private var isNavigateToMap = false
     let cityName: String
     let hasLocations: Bool
     let locations: [Location]
     let isFavorite: (Location) -> Bool
     let onFavoriteToggle: (Location) -> Void
+    let onRowTap: (Location) -> Void
+    let onMapButtonTap: () -> Void
     
     var body: some View {
-        NavigationStack {
+        VStack {
             HStack {
                 if hasLocations {
                     Button {
@@ -33,9 +34,7 @@ struct CityCell: View {
                 Spacer()
                 
                 Button {
-                    Task { @MainActor in
-                        isNavigateToMap = true
-                    }
+                    onMapButtonTap()
                 } label: {
                     Image(systemName: "chevron.right")
                 }
@@ -50,10 +49,6 @@ struct CityCell: View {
             )
             .padding(.horizontal)
             .padding(.bottom, 2)
-            .navigationDestination(isPresented: $isNavigateToMap) {
-                CityMapView(viewModel: CityMapViewModel(cityName: cityName, locations: locations))
-                    .navigationBarBackButtonHidden()
-            }
             
             // MARK: - If there is a location in the city
             if isExpanded {
@@ -62,7 +57,10 @@ struct CityCell: View {
                         location: location,
                         isFavorite: isFavorite(location),
                         style: .compact,
-                        onFavoriteToggle: { onFavoriteToggle(location) }
+                        onFavoriteToggle: { onFavoriteToggle(location) },
+                        onRowTap: {
+                            onRowTap(location)
+                        }
                     )
                 }
                 .padding(.bottom, 1)

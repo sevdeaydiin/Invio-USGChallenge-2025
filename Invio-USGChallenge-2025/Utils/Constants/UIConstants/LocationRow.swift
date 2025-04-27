@@ -18,18 +18,20 @@ struct LocationRow: View {
     let isFavorite: Bool
     let style: Style
     let onFavoriteToggle: () -> Void
-    @State var isNavigateToDetail = false
+    let onRowTap: () -> Void
     
     init(
         location: Location,
         isFavorite: Bool,
         style: Style = .compact,
-        onFavoriteToggle: @escaping () -> Void
+        onFavoriteToggle: @escaping () -> Void,
+        onRowTap: @escaping () -> Void = {}
     ) {
         self.location = location
         self.isFavorite = isFavorite
         self.style = style
         self.onFavoriteToggle = onFavoriteToggle
+        self.onRowTap = onRowTap
     }
     
     var body: some View {
@@ -61,11 +63,7 @@ struct LocationRow: View {
         .padding(.horizontal)
         .padding(.leading, style == .compact ? 30 : 0)
         .onTapGesture {
-            isNavigateToDetail = true
-        }
-        .navigationDestination(isPresented: $isNavigateToDetail) {
-            DetailView(location: location)
-                .navigationBarBackButtonHidden()
+            onRowTap()
         }
     }
 }

@@ -10,6 +10,7 @@ import SwiftUI
 struct FavoriteView: View {
     @StateObject private var viewModel = FavoriteViewModel()
     @Environment(\.dismiss) private var dismiss
+    @State private var selectedLocation: Location?
     
     var body: some View {
         ScrollView {
@@ -22,6 +23,9 @@ struct FavoriteView: View {
                             style: .expanded,
                             onFavoriteToggle: {
                                 viewModel.removeFavorite(location)
+                            },
+                            onRowTap: {
+                                selectedLocation = location
                             }
                         )
                     }.padding(.top, 1)
@@ -32,6 +36,15 @@ struct FavoriteView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 30)
                     .padding(.vertical)
+            }
+        }
+        .navigationDestination(isPresented: Binding(
+            get: { selectedLocation != nil },
+            set: { if !$0 { selectedLocation = nil } }
+        )) {
+            if let location = selectedLocation {
+                DetailView(location: location)
+                    .navigationBarBackButtonHidden()
             }
         }
         .navigationTitle("Favorilerim")
