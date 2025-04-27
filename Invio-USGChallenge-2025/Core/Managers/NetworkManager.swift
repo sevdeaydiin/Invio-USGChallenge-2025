@@ -30,7 +30,7 @@ final class NetworkManager: NetworkService {
         }
         
         let (data, response) = try await urlSession.data(for: urlRequest)
-        print(data)
+
         guard let httpResponse = response as? HTTPURLResponse else {
             throw NetworkError.invalidResponse
         }
@@ -41,7 +41,6 @@ final class NetworkManager: NetworkService {
         
         do {
             let decodedResponse = try jsonDecoder.decode(T.self, from: data)
-            print(decodedResponse)
             return decodedResponse
         } catch {
             throw NetworkError.decodedFailed(errorDescription: error.localizedDescription)
