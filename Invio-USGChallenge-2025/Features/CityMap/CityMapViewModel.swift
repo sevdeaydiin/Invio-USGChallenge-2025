@@ -17,6 +17,8 @@ class CityMapViewModel: NSObject, ObservableObject {
     @Published var shouldShowSettingsAlert = false
     @Published var userLocation: CLLocationCoordinate2D?
     @Published var showLocationPermissionAlert = false
+    @Published var selectedLocationId: Int?
+    @Published var locationDistances: [Int: String] = [:]
     
     private var locationManager: LocationManager
     private var cancellables = Set<AnyCancellable>()
@@ -31,6 +33,7 @@ class CityMapViewModel: NSObject, ObservableObject {
         self.locationManager = locationManager
         super.init()
         bindLocationUpdates()
+        self.selectedLocationId = locations.first?.id
     }
     
     // MARK: - Handle location permission state
@@ -44,46 +47,74 @@ class CityMapViewModel: NSObject, ObservableObject {
         }
     }
     
-    // MARK: - Handle location button behavior based on current permission state
+    // MARK: - Location related functions
+    private func sortLocationsByDistance() {
+        guard let userLocation = userLocation else { return }
+        
+        let userCLLocation = CLLocation(latitude: userLocation.latitude, longitude: userLocation.longitude)
+        
+        locations.sort { loc1, loc2 in
+            let loc1Coord = CLLocation(latitude: loc1.coordinates.lat, longitude: loc1.coordinates.lng)
+            let loc2Coord = CLLocation(latitude: loc2.coordinates.lat, longitude: loc2.coordinates.lng)
+            
+            let distance1 = userCLLocation.distance(from: loc1Coord)
+            let distance2 = userCLLocation.distance(from: loc2Coord)
+            
+            locationDistances[loc1.id] = formatDistance(distance1)
+            locationDistances[loc2.id] = formatDistance(distance2)
+            
+            return distance1 < distance2
+        }
+        
+        selectedLocationId = locations.first?.id
+    }
+    
+    private func formatDistance(_ distance: CLLocationDistance) -> String {
+        if distance < 1000 {
+            return "\(Int(distance))m"
+        } else {
+            let kilometers = distance / 1000
+            return String(format: "%.1fkm", kilometers)
+        }
+    }
+    
+    private func bindLocationUpdates() {
+        locationManager.$userLocation
+            .sink { [weak self] location in
+                guard let self = self, let location = location else { return }
+                self.userLocation = location
+                self.sortLocationsByDistance()
+            }
+            .store(in: &cancellables)
+    }
+    
+    // MARK: - Location button actions
     func handleLocationButtonTap() -> Bool {
-        switch locationManager.authorizationStatus {
-        case .authorizedWhenInUse, .authorizedAlways:
-            updateUserLocation()
-            return true
-        case .notDetermined:
-            locationManager.requestLocationAccess()
+        if locationManager.authorizationStatus == .notDetermined {
+            showLocationPermissionAlert = true
             return false
-        case .denied, .restricted:
-            locationManager.shouldShowSettingsAlert = true
-            return false
-        @unknown default:
+        } else if locationManager.authorizationStatus == .denied || locationManager.authorizationStatus == .restricted {
+            shouldShowSettingsAlert = true
             return false
         }
+        locationManager.fetchUserLocation()
+        return true
     }
     
-    // MARK: - Fetch current user location if authorized
-    func updateUserLocation() {
-        if locationManager.authorizationStatus == .authorizedWhenInUse || locationManager.authorizationStatus == .authorizedAlways {
-            locationManager.fetchUserLocation()
-        }
-    }
-    
-    // MARK: - Ask for location permission
     func requestLocationPermission() {
         locationManager.requestLocationAccess()
     }
-
-    // MARK: - Open app settings if permission is denied
+    
     func openSettings() {
         locationManager.openSettings()
     }
     
-    // MARK: - Bind location updates from LocationManager to the ViewModel
-    private func bindLocationUpdates() {
-        locationManager.$userLocation
-            .assign(to: &$userLocation)
-        locationManager.$shouldShowSettingsAlert
-            .assign(to: &$shouldShowSettingsAlert)
+    func updateUserLocation() {
+        locationManager.fetchUserLocation()
+    }
+    
+    func selectLocation(_ locationId: Int) {
+        selectedLocationId = locationId
     }
 }
 

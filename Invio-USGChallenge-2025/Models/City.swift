@@ -21,15 +21,23 @@ struct City: Codable {
     let locations: [Location]
 }
 
-struct Location: Codable, Identifiable {
+struct Location: Codable, Identifiable, Hashable {
     let id: Int
     let name: String
     let description: String
     let coordinates: Coordinates
     let image: String?
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: Location, rhs: Location) -> Bool {
+        lhs.id == rhs.id
+    }
 }
 
-struct Coordinates: Codable {
+struct Coordinates: Codable, Hashable {
     let lat: Double
     let lng: Double
 }
