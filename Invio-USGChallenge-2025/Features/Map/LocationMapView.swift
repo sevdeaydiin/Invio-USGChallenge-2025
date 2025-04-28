@@ -118,7 +118,7 @@ struct LocationMapView: View {
                   message: Text("Lütfen Ayarlar'dan konum erişimine izin verin."),
                   primaryButton: .default(Text("Aç"), action: {
                 if let url = URL(string: UIApplication.openSettingsURLString) {
-                    UIApplication.shared.open(url)
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
                 }
             }),
                   secondaryButton: .cancel(Text("İptal")))

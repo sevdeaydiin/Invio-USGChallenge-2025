@@ -149,7 +149,7 @@ class LocationMapViewModel: NSObject, ObservableObject {
         alert.addAction(cancelAction)
         
         // Google Maps
-        if UIApplication.shared.canOpenURL(URL(string: "comgooglemaps://")!) {
+        if let googleUrl = URL(string: "comgooglemaps://"), UIApplication.shared.canOpenURL(googleUrl) {
             let googleMapsAction = UIAlertAction(title: "Google", style: .default) { _ in
                 let urlString = "comgooglemaps://?saddr=\(userLocation.latitude),\(userLocation.longitude)&daddr=\(destinationLat),\(destinationLng)&directionsmode=driving"
                 if let url = URL(string: urlString) {
@@ -161,22 +161,21 @@ class LocationMapViewModel: NSObject, ObservableObject {
         
         // Apple Maps
         let appleMapsAction = UIAlertAction(title: "Haritalar", style: .default) { _ in
-            let destination = MKMapItem(placemark: MKPlacemark(coordinate: CLLocationCoordinate2D(latitude: destinationLat, longitude: destinationLng)))
-            destination.name = location.name
+            // Apple Maps için URL şeması kullanımı
+            let destinationCoord = "\(destinationLat),\(destinationLng)"
+            let sourceCoord = "\(userLocation.latitude),\(userLocation.longitude)"
             
-            let currentLocation = MKMapItem.forCurrentLocation()
+            // Apple Maps URL şeması (maps:// protokolü)
+            let urlString = "maps://?saddr=\(sourceCoord)&daddr=\(destinationCoord)&dirflg=d"
             
-            MKMapItem.openMaps(
-                with: [currentLocation, destination],
-                launchOptions: [
-                    MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving
-                ]
-            )
+            if let url = URL(string: urlString) {
+                UIApplication.shared.open(url, options: [:], completionHandler: nil)
+            }
         }
         alert.addAction(appleMapsAction)
         
         // Yandex Maps
-        if UIApplication.shared.canOpenURL(URL(string: "yandexmaps://")!) {
+        if let yandexUrl = URL(string: "yandexmaps://"), UIApplication.shared.canOpenURL(yandexUrl) {
             let yandexMapsAction = UIAlertAction(title: "Yandex Haritalar", style: .default) { _ in
                 let urlString = "yandexmaps://build_route_on_map?lat_from=\(userLocation.latitude)&lon_from=\(userLocation.longitude)&lat_to=\(destinationLat)&lon_to=\(destinationLng)"
                 if let url = URL(string: urlString) {
