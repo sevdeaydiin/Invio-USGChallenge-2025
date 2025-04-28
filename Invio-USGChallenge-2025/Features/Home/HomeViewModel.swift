@@ -42,9 +42,11 @@ final class HomeViewModel: ObservableObject {
             
             await MainActor.run {
                 cities.append(contentsOf: cityResponse.data)
+                store.cities.append(contentsOf: cityResponse.data)
                 currentPage = cityResponse.currentPage
                 hasMorePages = currentPage < cityResponse.totalPage
                 isLoading = false
+                NotificationCenter.default.post(name: NSNotification.Name("FavoriteStatusChanged"), object: nil)
             }
         } catch {
             await MainActor.run {
@@ -62,6 +64,7 @@ final class HomeViewModel: ObservableObject {
             favoriteManager.addToFavorite(location.id)
         }
         objectWillChange.send()
+        NotificationCenter.default.post(name: NSNotification.Name("FavoriteStatusChanged"), object: nil)
     }
     
     func isLocationFavorite(_ location: Location) -> Bool {
