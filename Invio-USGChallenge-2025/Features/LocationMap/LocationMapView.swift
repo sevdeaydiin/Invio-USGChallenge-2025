@@ -110,8 +110,16 @@ struct LocationMapView: View {
                 CustomAnnotation(coordinates: CLLocationCoordinate2D(latitude: location.coordinates.lat, longitude: location.coordinates.lng), isUserLocation: false)
             ]
             
-            // Request user location permission and get location
-            viewModel.requestLocationAccess()
+            // Sadece ilk kez konum izni istiyoruz, sonraki girişlerde kontrol edeceğiz
+            if viewModel.isFirstLocationRequest {
+                viewModel.requestLocationAccess()
+            } else {
+                // Konum izni varsa konumu alalım
+                if viewModel.authorizationStatus == .authorizedWhenInUse ||
+                   viewModel.authorizationStatus == .authorizedAlways {
+                    viewModel.fetchUserLocation()
+                }
+            }
         }
         .alert(isPresented: $viewModel.shouldShowSettingsAlert) {
             Alert(title: Text("Konum izni gerekli"),

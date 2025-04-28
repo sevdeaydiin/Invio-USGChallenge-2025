@@ -22,13 +22,15 @@ class LocationMapViewModel: NSObject, ObservableObject {
     @Published var shouldCenterOnUserLocationAfterPermission: Bool = false
     @Published var isFirstLocationRequest: Bool = true
     
-    private var locationManager: LocationManager
+    var locationManager: LocationManager
+    
     private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Initialization
     override init() {
         self.locationManager = .shared
         super.init()
+        self.isFirstLocationRequest = !UserDefaults.standard.bool(forKey: "hasRequestedLocationPermission")
         bindLocationUpdates()
     }
     
@@ -70,7 +72,7 @@ class LocationMapViewModel: NSObject, ObservableObject {
             .store(in: &cancellables)
     }
     
-    // Ask the user for location access when the app is in use
+    // MARK: - Ask the user for location access when the app is in use
     func requestLocationAccess() {
         let status = locationManager.authorizationStatus
         
@@ -117,7 +119,7 @@ class LocationMapViewModel: NSObject, ObservableObject {
         }
     }
     
-    // Start fetching the user's location
+    // MARK: - Start fetching the user's location
     func fetchUserLocation() {
         locationManager.fetchUserLocation()
     }
@@ -129,6 +131,7 @@ class LocationMapViewModel: NSObject, ObservableObject {
             shouldCenterOnUserLocationAfterPermission = false
         }
         isFirstLocationRequest = false
+        UserDefaults.standard.set(true, forKey: "hasRequestedLocationPermission")
     }
     
     func openDirections(for location: Location) {
@@ -161,11 +164,8 @@ class LocationMapViewModel: NSObject, ObservableObject {
         
         // Apple Maps
         let appleMapsAction = UIAlertAction(title: "Haritalar", style: .default) { _ in
-            // Apple Maps için URL şeması kullanımı
             let destinationCoord = "\(destinationLat),\(destinationLng)"
             let sourceCoord = "\(userLocation.latitude),\(userLocation.longitude)"
-            
-            // Apple Maps URL şeması (maps:// protokolü)
             let urlString = "maps://?saddr=\(sourceCoord)&daddr=\(destinationCoord)&dirflg=d"
             
             if let url = URL(string: urlString) {
@@ -189,5 +189,10 @@ class LocationMapViewModel: NSObject, ObservableObject {
            let viewController = windowScene.windows.first?.rootViewController {
             viewController.present(alert, animated: true)
         }
+    }
+    
+    // Getter that returns location permission status
+    var authorizationStatus: CLAuthorizationStatus {
+        return locationManager.authorizationStatus
     }
 }
