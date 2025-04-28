@@ -22,7 +22,9 @@ struct CityCell: View {
             HStack {
                 if hasLocations {
                     Button {
-                        isExpanded.toggle()
+                        withAnimation {
+                            isExpanded.toggle()
+                        }
                     } label: {
                         Image(systemName: isExpanded ? "minus" : "plus" )
                     }
@@ -30,6 +32,7 @@ struct CityCell: View {
                 
                 Text(cityName.uppercased())
                     .font(.title2)
+                    .fontWeight(.semibold)
                 
                 Spacer()
                 

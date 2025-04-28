@@ -46,6 +46,8 @@ struct LocationRow: View {
                 Button(action: onFavoriteToggle) {
                     Image(systemName: isFavorite ? "heart.fill" : "heart")
                         .foregroundColor(isFavorite ? .red : .primary)
+                        .scaleEffect(isFavorite ? 1.2 : 1)
+                        .animation(.easeInOut, value: isFavorite)
                 }
             }
         }
