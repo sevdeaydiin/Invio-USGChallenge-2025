@@ -2,6 +2,17 @@
 
 Bu proje, kullanıcıların Türkiye'deki şehirleri ve bu şehirlerdeki önemli konumları keşfetmelerine olanak tanıyan bir mobil uygulamadır. Kullanıcılar, şehirler ve konumlar arasında gezinebilir, konum detaylarını görüntüleyebilir ve harita üzerinde konumları inceleyebilir.
 
+<img src="https://github.com/user-attachments/assets/d63771e1-6dc9-4122-b952-ca75c2d2a9f0" width="200" height="420" /> 
+<img src="https://github.com/user-attachments/assets/1ad7b09f-395e-4538-b5cc-3b55695a346f" width="200" height="420" /> 
+<img src="https://github.com/user-attachments/assets/97d34046-4a30-4712-abd7-cc55132bb0a9" width="200" height="420" /> 
+<img src="https://github.com/user-attachments/assets/d5db2b18-41e5-4b60-adc7-ea4e885f70e7" width="200" height="420" />
+
+ 
+<img src="https://github.com/user-attachments/assets/00cdbf81-465a-412b-9bf5-3a1d46a39651" width="200" height="420" /> 
+<img src="https://github.com/user-attachments/assets/dfdd067a-1fd9-41fc-94f8-56f4cb57cfe0" width="200" height="420" /> 
+<img src="https://github.com/user-attachments/assets/fbfe8831-baa1-4cab-aecc-79f0a8a19972" width="200" height="420" /> 
+<img src="https://github.com/user-attachments/assets/a0d84194-28a9-41d5-814e-2b3eb58ef267" width="200" height="420" />
+
 ## Özellikler
 
 - **Splash Ekranı**: Uygulama açıldığında kullanıcıyı karşılayan ekran.
