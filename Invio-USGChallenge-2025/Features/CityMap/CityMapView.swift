@@ -39,7 +39,34 @@ struct CityMapView: View {
                 LocationCardsView(viewModel: viewModel, mapRegion: $mapRegion)
             }
         }
-        .locationPermissionAlerts(viewModel: viewModel)
+        .onReceive(viewModel.$userLocation) { userCoordinate in
+            guard let userCoordinate = userCoordinate, viewModel.shouldCenterOnUser else { return }
+            
+            mapRegion = MKCoordinateRegion(
+                center: userCoordinate,
+                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+            )
+            
+            DispatchQueue.main.async {
+                viewModel.shouldCenterOnUser = false
+            }
+        }
+        .alert("Kendi konumunu haritada görmek ister misin?", isPresented: $viewModel.showLocationPermissionAlert) {
+            Button("Evet") {
+                viewModel.handleLocationPermissionResponse(isAccepted: true)
+            }
+            Button("Hayır", role: .cancel) {
+                viewModel.handleLocationPermissionResponse(isAccepted: false)
+            }
+        }
+        .alert("Konum İzni Gerekli", isPresented: $viewModel.shouldShowSettingsAlert) {
+            Button("Ayarlara Git") {
+                viewModel.openSettings()
+            }
+            Button("İptal", role: .cancel) { }
+        } message: {
+            Text("Konumunuzu görebilmek için ayarlardan konum iznini etkinleştirmeniz gerekmektedir.")
+        }
         .toolbar {
             ToolbarItemView(cityName: viewModel.cityName)
         }
@@ -125,34 +152,6 @@ private struct LocationAnnotationView: View {
                 }
             }
         }
-    }
-}
-
-private extension View {
-    func locationPermissionAlerts(viewModel: CityMapViewModel) -> some View {
-        self
-            .alert("Konum İzni", isPresented: Binding(
-                get: { viewModel.showLocationPermissionAlert },
-                set: { viewModel.showLocationPermissionAlert = $0 }
-            )) {
-                Button("Evet") {
-                    viewModel.requestLocationPermission()
-                }
-                Button("Hayır", role: .cancel) { }
-            } message: {
-                Text("Kendi konumunu haritada görmek ister misin?")
-            }
-            .alert("Konum İzni Gerekli", isPresented: Binding(
-                get: { viewModel.shouldShowSettingsAlert },
-                set: { viewModel.shouldShowSettingsAlert = $0 }
-            )) {
-                Button("Ayarlara Git") {
-                    viewModel.openSettings()
-                }
-                Button("İptal", role: .cancel) { }
-            } message: {
-                Text("Konumunuzu görebilmek için ayarlardan konum iznini etkinleştirmeniz gerekmektedir.")
-            }
     }
 }
 

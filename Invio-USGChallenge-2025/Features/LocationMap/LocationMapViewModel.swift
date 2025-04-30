@@ -13,14 +13,12 @@ import UIKit
 import Combine
 
 class LocationMapViewModel: NSObject, ObservableObject {
-    
     // MARK: - Published Properties
     @Published var userLocation: CLLocationCoordinate2D?
     @Published var shouldCenterOnUser: Bool = false
     @Published var shouldShowSettingsAlert: Bool = false
     @Published var shouldShowLocationPermissionAlert: Bool = false
     @Published var shouldCenterOnUserLocationAfterPermission: Bool = false
-    @Published var isFirstLocationRequest: Bool = true
     
     var locationManager: LocationManager
     
@@ -30,7 +28,6 @@ class LocationMapViewModel: NSObject, ObservableObject {
     override init() {
         self.locationManager = .shared
         super.init()
-        self.isFirstLocationRequest = !UserDefaults.standard.bool(forKey: "hasRequestedLocationPermission")
         bindLocationUpdates()
     }
     
@@ -41,6 +38,7 @@ class LocationMapViewModel: NSObject, ObservableObject {
                 self.userLocation = location
                 if self.shouldCenterOnUserLocationAfterPermission {
                     self.shouldCenterOnUser = true
+                    self.shouldCenterOnUserLocationAfterPermission = false
                 }
             }
             .store(in: &cancellables)
@@ -62,9 +60,8 @@ class LocationMapViewModel: NSObject, ObservableObject {
                         self.shouldCenterOnUser = true
                     }
                 case .denied, .restricted:
-                    if !self.isFirstLocationRequest {
-                        self.shouldShowSettingsAlert = true
-                    }
+                    // Settings guide alert
+                    break
                 default:
                     break
                 }
@@ -75,10 +72,11 @@ class LocationMapViewModel: NSObject, ObservableObject {
     // MARK: - Ask the user for location access when the app is in use
     func requestLocationAccess() {
         let status = locationManager.authorizationStatus
+        let hasRequestedPermission = UserDefaults.hasRequestedLocationPermission
         
         switch status {
         case .notDetermined:
-            if isFirstLocationRequest {
+            if !hasRequestedPermission {
                 shouldShowLocationPermissionAlert = true
             } else {
                 locationManager.requestLocationAccess()
@@ -89,9 +87,7 @@ class LocationMapViewModel: NSObject, ObservableObject {
                 shouldCenterOnUser = true
             }
         case .denied, .restricted:
-            if !isFirstLocationRequest {
-                shouldShowSettingsAlert = true
-            }
+            shouldShowSettingsAlert = true
         @unknown default:
             break
         }
@@ -102,13 +98,8 @@ class LocationMapViewModel: NSObject, ObservableObject {
         
         switch status {
         case .notDetermined:
-            if isFirstLocationRequest {
-                shouldCenterOnUserLocationAfterPermission = true
-                shouldShowLocationPermissionAlert = true
-                isFirstLocationRequest = false
-            } else {
-                locationManager.requestLocationAccess()
-            }
+            shouldCenterOnUserLocationAfterPermission = true
+            shouldShowLocationPermissionAlert = true
         case .authorizedAlways, .authorizedWhenInUse:
             shouldCenterOnUser = true
             locationManager.fetchUserLocation()
@@ -127,11 +118,11 @@ class LocationMapViewModel: NSObject, ObservableObject {
     func handleLocationPermissionResponse(isAccepted: Bool) {
         if isAccepted {
             locationManager.requestLocationAccess()
-        } else {
-            shouldCenterOnUserLocationAfterPermission = false
+            shouldCenterOnUserLocationAfterPermission = true
         }
-        isFirstLocationRequest = false
-        UserDefaults.standard.set(true, forKey: "hasRequestedLocationPermission")
+        
+        // Save permission requested
+        UserDefaults.hasRequestedLocationPermission = true
     }
     
     func openDirections(for location: Location) {

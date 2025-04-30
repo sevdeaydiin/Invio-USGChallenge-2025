@@ -14,14 +14,7 @@ struct LocationButtonView: View {
     
     var body: some View {
         LocationButton {
-            Task { @MainActor in
-                if viewModel.handleLocationButtonTap() {
-                    if let userLocation = viewModel.userLocation {
-                        mapRegion.center = userLocation
-                        mapRegion.span = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-                    }
-                }
-            }
+            viewModel.handleLocationButtonTap()
         }
     }
 }

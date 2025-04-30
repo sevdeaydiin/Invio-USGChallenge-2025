@@ -110,15 +110,15 @@ struct LocationMapView: View {
                 CustomAnnotation(coordinates: CLLocationCoordinate2D(latitude: location.coordinates.lat, longitude: location.coordinates.lng), isUserLocation: false)
             ]
             
-            // Sadece ilk kez konum izni istiyoruz, sonraki girişlerde kontrol edeceğiz
-            if viewModel.isFirstLocationRequest {
+            // When the app is opened for the first time and location permission has not yet been requested
+            let hasRequestedPermission = UserDefaults.hasRequestedLocationPermission
+            if !hasRequestedPermission && viewModel.authorizationStatus == .notDetermined {
                 viewModel.requestLocationAccess()
-            } else {
-                // Konum izni varsa konumu alalım
-                if viewModel.authorizationStatus == .authorizedWhenInUse ||
-                   viewModel.authorizationStatus == .authorizedAlways {
-                    viewModel.fetchUserLocation()
-                }
+            } 
+            // If location permission is granted
+            else if viewModel.authorizationStatus == .authorizedWhenInUse ||
+                    viewModel.authorizationStatus == .authorizedAlways {
+                viewModel.fetchUserLocation()
             }
         }
         .alert(isPresented: $viewModel.shouldShowSettingsAlert) {

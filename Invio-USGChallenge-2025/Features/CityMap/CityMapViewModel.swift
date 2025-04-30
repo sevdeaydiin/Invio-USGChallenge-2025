@@ -19,6 +19,8 @@ class CityMapViewModel: NSObject, ObservableObject {
     @Published var showLocationPermissionAlert = false
     @Published var selectedLocationId: Int?
     @Published var locationDistances: [Int: String] = [:]
+    @Published var shouldCenterOnUser: Bool = false
+    @Published var shouldCenterOnUserLocationAfterPermission: Bool = false
     
     private var locationManager: LocationManager
     private var cancellables = Set<AnyCancellable>()
@@ -38,12 +40,15 @@ class CityMapViewModel: NSObject, ObservableObject {
     
     // MARK: - Handle location permission state
     func onAppear() {
-        if locationManager.authorizationStatus == .notDetermined {
+        // When the app is opened for the first time and location permission has not yet been requested
+        let hasRequestedPermission = UserDefaults.hasRequestedLocationPermission
+        if !hasRequestedPermission && locationManager.authorizationStatus == .notDetermined {
             showLocationPermissionAlert = true
-        } else if locationManager.authorizationStatus == .authorizedWhenInUse || locationManager.authorizationStatus == .authorizedAlways {
+        } 
+        // If location permission is granted
+        else if locationManager.authorizationStatus == .authorizedWhenInUse ||
+                locationManager.authorizationStatus == .authorizedAlways {
             updateUserLocation()
-        } else if locationManager.authorizationStatus == .denied || locationManager.authorizationStatus == .restricted {
-            shouldShowSettingsAlert = true
         }
     }
     
@@ -84,29 +89,75 @@ class CityMapViewModel: NSObject, ObservableObject {
                 guard let self = self, let location = location else { return }
                 self.userLocation = location
                 self.sortLocationsByDistance()
+                if self.shouldCenterOnUserLocationAfterPermission {
+                    self.shouldCenterOnUser = true
+                    self.shouldCenterOnUserLocationAfterPermission = false
+                }
+            }
+            .store(in: &cancellables)
+        
+        locationManager.$shouldShowSettingsAlert
+            .sink { [weak self] shouldShow in
+                self?.shouldShowSettingsAlert = shouldShow
+            }
+            .store(in: &cancellables)
+        
+        locationManager.$authorizationStatus
+            .sink { [weak self] status in
+                guard let self = self else { return }
+                
+                switch status {
+                case .authorizedWhenInUse, .authorizedAlways:
+                    self.locationManager.fetchUserLocation()
+                    if self.shouldCenterOnUserLocationAfterPermission {
+                        self.shouldCenterOnUser = true
+                    }
+                case .denied, .restricted:
+                    // Settings guide alert
+                    break
+                default:
+                    break
+                }
             }
             .store(in: &cancellables)
     }
     
     // MARK: - Location button actions
-    func handleLocationButtonTap() -> Bool {
-        if locationManager.authorizationStatus == .notDetermined {
-            showLocationPermissionAlert = true
-            return false
-        } else if locationManager.authorizationStatus == .denied || locationManager.authorizationStatus == .restricted {
-            shouldShowSettingsAlert = true
-            return false
-        }
-        locationManager.fetchUserLocation()
-        return true
+    func handleLocationButtonTap() {
+        centerOnUserLocation()
     }
     
-    func requestLocationPermission() {
-        locationManager.requestLocationAccess()
+    func centerOnUserLocation() {
+        let status = locationManager.authorizationStatus
+        
+        switch status {
+        case .notDetermined:
+            shouldCenterOnUserLocationAfterPermission = true
+            showLocationPermissionAlert = true
+        case .authorizedAlways, .authorizedWhenInUse:
+            shouldCenterOnUser = true
+            locationManager.fetchUserLocation()
+        case .denied, .restricted:
+            shouldShowSettingsAlert = true
+        @unknown default:
+            break
+        }
+    }
+    
+    func handleLocationPermissionResponse(isAccepted: Bool) {
+        if isAccepted {
+            locationManager.requestLocationAccess()
+            shouldCenterOnUserLocationAfterPermission = true
+        }
+        
+        // Save permission requested
+        UserDefaults.hasRequestedLocationPermission = true
     }
     
     func openSettings() {
-        locationManager.openSettings()
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
     }
     
     func updateUserLocation() {
@@ -115,6 +166,11 @@ class CityMapViewModel: NSObject, ObservableObject {
     
     func selectLocation(_ locationId: Int) {
         selectedLocationId = locationId
+    }
+    
+    // Getter that returns location permission status
+    var authorizationStatus: CLAuthorizationStatus {
+        return locationManager.authorizationStatus
     }
 }
 

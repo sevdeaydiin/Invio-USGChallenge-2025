@@ -51,29 +51,57 @@ class LocationManager: NSObject, ObservableObject {
 extension LocationManager: CLLocationManagerDelegate {
     // Called when authorization status changes
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
             self.authorizationStatus = manager.authorizationStatus
-        }
-
-        switch manager.authorizationStatus {
-        case .authorizedWhenInUse, .authorizedAlways:
-            manager.startUpdatingLocation()
-        case .denied, .restricted:
-            shouldShowSettingsAlert = true
-        case .notDetermined:
-            break
-        @unknown default:
-            break
+            
+            switch manager.authorizationStatus {
+            case .authorizedWhenInUse, .authorizedAlways:
+                self.manager.startUpdatingLocation()
+            case .denied, .restricted:
+                self.shouldShowSettingsAlert = true
+            case .notDetermined:
+                break
+            @unknown default:
+                break
+            }
         }
     }
     
     // Called when a new location information is received
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let coordinate = locations.last?.coordinate else { return }
-        DispatchQueue.main.async {
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
             self.userLocation = coordinate
+            
+            // Konum güncellemesi başarılı olduğunda durmak için gecikme ekleyelim
+            // bu sayede konum alınması daha güvenilir olacak
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                self?.manager.stopUpdatingLocation()
+            }
         }
-        // Stop to prevent unnecessary battery consumption
-        manager.stopUpdatingLocation()
+    }
+    
+    // Failed to get location
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        // Hata durumunda tekrar deneme
+        if let error = error as? CLError {
+            switch error.code {
+            case .network:
+                // Ağ hatası, tekrar dene
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+                    self?.fetchUserLocation()
+                }
+            case .denied:
+                // Kullanıcı erişimi reddetti
+                DispatchQueue.main.async { [weak self] in
+                    self?.shouldShowSettingsAlert = true
+                }
+            default:
+                break
+            }
+        }
     }
 }

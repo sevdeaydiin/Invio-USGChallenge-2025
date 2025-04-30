@@ -12,7 +12,10 @@ struct LocationButton: View {
     
     var body: some View {
         Button {
-            action()
+            // Ana thread'de çalıştır
+            DispatchQueue.main.async {
+                action()
+            }
         } label: {
             Image(systemName: "scope")
                 .font(.title2)
