@@ -19,8 +19,8 @@ struct SplashView: View {
     var body: some View {
         NavigationView {
                 ZStack {
-                    Color.white
-                        .ignoresSafeArea()
+//                    Color.primary
+//                        .ignoresSafeArea()
                     
                     VStack(spacing: 20) {
                         Spacer()
@@ -32,7 +32,6 @@ struct SplashView: View {
                         Text("Şehirdeki Önemli Konumlar")
                             .font(.system(size: 40, weight: .bold, design: .rounded))
                             .multilineTextAlignment(.center)
-                            .foregroundStyle(.black)
                         
                         contentView
                         Spacer()
@@ -40,6 +39,8 @@ struct SplashView: View {
                     }
                     .padding()
                 }
+                .foregroundStyle(.primary)
+                .background(.background)
             }
             .onChange(of: viewModel.canNavigateToHome) { _, newValue in
                 if newValue {

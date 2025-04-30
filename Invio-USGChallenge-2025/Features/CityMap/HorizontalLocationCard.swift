@@ -32,7 +32,7 @@ struct HorizontalLocationCard: View {
                     Image(systemName: "photo")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .foregroundColor(.black)
+                        .foregroundColor(.secondary)
                         .frame(width: 90, height: 70)
                         .cornerRadius(10)
                 }
