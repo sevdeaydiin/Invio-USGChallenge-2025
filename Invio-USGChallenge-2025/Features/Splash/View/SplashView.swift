@@ -19,9 +19,6 @@ struct SplashView: View {
     var body: some View {
         NavigationView {
                 ZStack {
-//                    Color.primary
-//                        .ignoresSafeArea()
-                    
                     VStack(spacing: 20) {
                         Spacer()
                         LottieView(animationName: "location")
@@ -35,7 +32,6 @@ struct SplashView: View {
                         
                         contentView
                         Spacer()
-    
                     }
                     .padding()
                 }

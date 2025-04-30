@@ -15,7 +15,6 @@ struct LocationMapView: View {
     @StateObject private var viewModel = LocationMapViewModel()
     @State private var region: MKCoordinateRegion
     @State private var annotations: [CustomAnnotation] = []
-    @Environment(\.dismiss) private var dismiss
     
     init(location: Location) {
         self.location = location
@@ -65,21 +64,7 @@ struct LocationMapView: View {
             }
             .padding(.bottom)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .fontWeight(.bold)
-                    }
-                    .foregroundColor(.primary)
-                }
-                ToolbarItem(placement: .principal) {
-                    Text(location.name)
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundColor(.primary)
-                }
+                ToolbarItemView(locationName: location.name)
             }
         }
         .onReceive(viewModel.$userLocation) { userCoordinate in
@@ -138,6 +123,29 @@ struct LocationMapView: View {
             Button("Hayır", role: .cancel) {
                 viewModel.handleLocationPermissionResponse(isAccepted: false)
             }
+        }
+    }
+}
+
+private struct ToolbarItemView: ToolbarContent {
+    @Environment(\.dismiss) private var dismiss
+    let locationName: String
+    
+    var body: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarLeading) {
+            Button {
+                dismiss()
+            } label: {
+                Image(systemName: "chevron.left")
+                    .fontWeight(.bold)
+            }
+            .foregroundColor(.primary)
+        }
+        ToolbarItem(placement: .principal) {
+            Text(locationName)
+                .font(.title3)
+                .fontWeight(.bold)
+                .foregroundColor(.primary)
         }
     }
 }
