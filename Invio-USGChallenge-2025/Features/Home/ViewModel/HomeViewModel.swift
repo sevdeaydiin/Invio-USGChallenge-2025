@@ -25,6 +25,21 @@ final class HomeViewModel: ObservableObject {
     init(networkManager: NetworkService = NetworkManager()) {
         self.networkManager = networkManager
         self.cities = store.cities
+        setupNotificationObserver()
+    }
+    
+    // MARK: - Notification Setup
+    private func setupNotificationObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleFavoriteStatusChanged),
+            name: NSNotification.Name("FavoriteStatusChanged"),
+            object: nil
+        )
+    }
+    
+    @objc private func handleFavoriteStatusChanged() {
+        self.objectWillChange.send()
     }
     
     // MARK: - Data Fetching
@@ -69,6 +84,11 @@ final class HomeViewModel: ObservableObject {
     
     func isLocationFavorite(_ location: Location) -> Bool {
         favoriteManager.isFavorite(location.id)
+    }
+    
+    // MARK: - Deinit
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }
 
